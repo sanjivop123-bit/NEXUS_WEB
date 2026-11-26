@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nexus</title>
+<style>
+:root{--bg:#07080b;--p:#10131a;--b:#1d2330;--t:#eef1f6;--m:#8b94a7;--g:#3b9bff}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:radial-gradient(900px 500px at 50% -10%,#0d2a52 0,transparent 70%),var(--bg);color:var(--t);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif;display:flex;flex-direction:column}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px}
+.logo{font-weight:700;letter-spacing:.14em;text-shadow:0 0 18px var(--g)}
+.pill{border:1px solid var(--b);background:var(--p);color:var(--m);border-radius:99px;padding:6px 14px;font-size:13px;cursor:pointer}
+.pill:hover{border-color:var(--g);color:var(--t)}
+main{flex:1;overflow:auto;padding:0 16px}
+.wrap{max-width:720px;margin:0 auto}
+.hero{text-align:center;margin-top:18vh}
+.hero h1{font-size:34px;font-weight:600;margin:0 0 6px;text-shadow:0 0 30px rgba(59,155,255,.5)}
+.hero p{color:var(--m);margin:0}
+.msg{margin:18px 0;white-space:pre-wrap;word-wrap:break-word}
+.msg.u{background:var(--p);border:1px solid var(--b);border-radius:16px;padding:10px 14px;margin-left:auto;width:fit-content;max-width:85%}
+.msg.e{color:#ff8a8a}
+pre{background:#0a0d13;border:1px solid var(--b);border-radius:10px;padding:12px;overflow:auto;margin:8px 0}
+footer{padding:10px 16px 18px}
+.box{max-width:720px;margin:0 auto;background:var(--p);border:1px solid var(--b);border-radius:20px;padding:10px 12px;display:flex;gap:8px;align-items:flex-end;transition:.2s}
+.box:focus-within{border-color:var(--g);box-shadow:0 0 0 3px rgba(59,155,255,.15),0 0 30px rgba(59,155,255,.15)}
+textarea{flex:1;background:none;border:0;outline:0;color:var(--t);font:inherit;resize:none;max-height:180px;padding:6px}
+.send{background:var(--g);color:#001226;border:0;border-radius:12px;width:38px;height:38px;font-size:18px;cursor:pointer;font-weight:700}
+.send:disabled{opacity:.4}
+.note{text-align:center;color:var(--m);font-size:12px;margin-top:8px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:16px}
+.modal.on{display:flex}
+.card{background:var(--p);border:1px solid var(--b);border-radius:18px;padding:22px;width:100%;max-width:460px;max-height:90vh;overflow:auto}
+.card h3{margin:0 0 4px}.card small{color:var(--m)}
+.card h4{margin:18px 0 8px;font-size:14px}
+input{width:100%;background:#0a0d13;border:1px solid var(--b);border-radius:10px;color:var(--t);padding:9px 11px;margin:4px 0;font:inherit;font-size:14px}
+button.b{background:var(--g);color:#001226;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer;margin-top:6px}
+button.x{background:none;border:1px solid var(--b);color:var(--m);border-radius:10px;padding:8px 14px;cursor:pointer;margin-left:6px}
+.item{display:flex;justify-content:space-between;font-size:13px;color:var(--m);padding:4px 0}
+.item a{color:#ff8a8a;cursor:pointer}
+</style></head><body>
+<header><span class="logo">NEXUS</span><span><span class="pill" id="cr">…</span> <span class="pill" onclick="md(1)">Connectors</span></span></header>
+<main id="m"><div class="wrap" id="c"><div class="hero" id="h"><h1>How can I help you today?</h1><p>Chat, write code, and use your connected apps.</p></div></div></main>
+<footer><div class="box"><textarea id="i" rows="1" placeholder="Message Nexus"></textarea><button class="send" id="s" title="Send">↑</button></div><div class="note">Nexus can make mistakes. Check important info.</div></footer>
+<div class="modal" id="md"><div class="card"><h3>Connectors</h3><small>Connect your apps so Nexus can act for you.</small>
+<h4>MCP servers (Instagram, Google, Gmail, Drive…)</h4><small>Paste any remote MCP URL (for example from Composio) to connect that app.</small>
+<input id="mn" placeholder="Name (e.g. instagram)"><input id="mu" placeholder="https://…/mcp"><button class="b" onclick="addM()">Add MCP</button><div id="ml"></div>
+<h4>Telegram</h4><input id="tt" placeholder="Bot token (from @BotFather)"><input id="tc" placeholder="Chat ID"><button class="b" onclick="saveT()">Save &amp; test</button><div id="ts" class="item"></div>
+<div style="margin-top:16px"><button class="x" style="margin:0" onclick="md(0)">Close</button></div></div></div>
+<script>
+const $=id=>document.getElementById(id),L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}};
+let hist=L('nx_h',[]),mcp=L('nx_m',[]),tg=L('nx_t',null);
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fmt=s=>esc(s).replace(/```(?:\w+)?\n?([\s\S]*?)```/g,'<pre>$1</pre>');
+function add(role,text,err){$('h')&&$('h').remove();const d=document.createElement('div');d.className='msg '+(role==='user'?'u':err?'e':'a');d.innerHTML=fmt(text);$('c').appendChild(d);$('m').scrollTop=1e9;return d}
+function cr(n){$('cr').textContent=n+' free messages left'}
+fetch('/api/credits').then(r=>r.json()).then(j=>cr(j.left)).catch(()=>cr('?'));
+hist.forEach(m=>add(m.role,m.content));
+async function go(){const t=$('i').value.trim();if(!t)return;$('i').value='';$('s').disabled=true;hist.push({role:'user',content:t});add('user',t);const w=add('a','…');
+try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist,mcp,tg})});const j=await r.json();if(typeof j.left==='number')cr(j.left);
+if(!r.ok){hist.pop();w.className='msg e';w.textContent=j.error||'Error'}else{hist.push({role:'assistant',content:j.reply});w.innerHTML=fmt(j.reply)}}
+catch(e){hist.pop();w.className='msg e';w.textContent='Network error'}
+localStorage.setItem('nx_h',JSON.stringify(hist.slice(-30)));$('s').disabled=false;$('i').focus()}
+$('s').onclick=go;$('i').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go()}});
+$('i').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=e.target.scrollHeight+'px'});
+function md(o){$('md').classList.toggle('on',!!o);if(o)ren()}
+function ren(){$('ml').innerHTML=mcp.map((s,i)=>'<div class="item"><span>'+esc(s.name)+'</span><a onclick="rm('+i+')">remove</a></div>').join('');$('ts').textContent=tg?'Telegram connected':''}
+function addM(){const n=$('mn').value.trim()||'mcp',u=$('mu').value.trim();if(!/^https:\/\//.test(u))return alert('URL must start with https://');mcp.push({name:n,url:u});localStorage.setItem('nx_m',JSON.stringify(mcp));$('mn').value=$('mu').value='';ren()}
+function rm(i){mcp.splice(i,1);localStorage.setItem('nx_m',JSON.stringify(mcp));ren()}
+async function saveT(){const token=$('tt').value.trim(),chat=$('tc').value.trim();if(!token||!chat)return;$('ts').textContent='Testing…';const r=await fetch('/api/telegram-test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,chat})});const j=await r.json();if(j.result&&j.result.startsWith('Sent')){tg={token,chat};localStorage.setItem('nx_t',JSON.stringify(tg));$('tt').value=$('tc').value='';$('ts').textContent='Telegram connected ✓'}else $('ts').textContent=j.result||j.error||'Failed'}
+</script></body></html>
