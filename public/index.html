@@ -1,5 +1,9 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nexus</title>
 <style>
+#stage{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+header,main,footer{position:relative;z-index:2}
+.msg.a{background:rgba(7,8,11,.72);backdrop-filter:blur(6px);border-radius:14px;padding:8px 14px}
+
 :root{--bg:#07080b;--p:#10131a;--b:#1d2330;--t:#eef1f6;--m:#8b94a7;--g:#3b9bff}
 *{box-sizing:border-box}html,body{height:100%;margin:0}
 body{background:radial-gradient(900px 500px at 50% -10%,#0d2a52 0,transparent 70%),var(--bg);color:var(--t);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif;display:flex;flex-direction:column}
@@ -9,7 +13,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .pill:hover{border-color:var(--g);color:var(--t)}
 main{flex:1;overflow:auto;padding:0 16px}
 .wrap{max-width:720px;margin:0 auto}
-.hero{text-align:center;margin-top:18vh}
+.hero{text-align:center;margin-top:6vh}
 .hero h1{font-size:34px;font-weight:600;margin:0 0 6px;text-shadow:0 0 30px rgba(59,155,255,.5)}
 .hero p{color:var(--m);margin:0}
 .msg{margin:18px 0;white-space:pre-wrap;word-wrap:break-word}
@@ -34,6 +38,7 @@ button.x{background:none;border:1px solid var(--b);color:var(--m);border-radius:
 .item{display:flex;justify-content:space-between;font-size:13px;color:var(--m);padding:4px 0}
 .item a{color:#ff8a8a;cursor:pointer}
 </style></head><body>
+<canvas id="stage" aria-hidden="true"></canvas>
 <header><span class="logo">NEXUS</span><span><span class="pill" id="cr">…</span> <span class="pill" onclick="md(1)">Connectors</span></span></header>
 <main id="m"><div class="wrap" id="c"><div class="hero" id="h"><h1>How can I help you today?</h1><p>Chat, write code, and use your connected apps.</p></div></div></main>
 <footer><div class="box"><textarea id="i" rows="1" placeholder="Message Nexus"></textarea><button class="send" id="s" title="Send">↑</button></div><div class="note">Nexus can make mistakes. Check important info.</div></footer>
@@ -42,6 +47,7 @@ button.x{background:none;border:1px solid var(--b);color:var(--m);border-radius:
 <input id="mn" placeholder="Name (e.g. instagram)"><input id="mu" placeholder="https://…/mcp"><button class="b" onclick="addM()">Add MCP</button><div id="ml"></div>
 <h4>Telegram</h4><input id="tt" placeholder="Bot token (from @BotFather)"><input id="tc" placeholder="Chat ID"><button class="b" onclick="saveT()">Save &amp; test</button><div id="ts" class="item"></div>
 <div style="margin-top:16px"><button class="x" style="margin:0" onclick="md(0)">Close</button></div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}};
 let hist=L('nx_h',[]),mcp=L('nx_m',[]),tg=L('nx_t',null);
@@ -51,9 +57,9 @@ function add(role,text,err){$('h')&&$('h').remove();const d=document.createEleme
 function cr(n){$('cr').textContent=n+' free messages left'}
 fetch('/api/credits').then(r=>r.json()).then(j=>cr(j.left)).catch(()=>cr('?'));
 hist.forEach(m=>add(m.role,m.content));
-async function go(){const t=$('i').value.trim();if(!t)return;$('i').value='';$('s').disabled=true;hist.push({role:'user',content:t});add('user',t);const w=add('a','…');
+async function go(){const t=$('i').value.trim();if(!t)return;$('i').value='';$('s').disabled=true;hist.push({role:'user',content:t});window.nxPulse&&nxPulse();add('user',t);const w=add('a','…');
 try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist,mcp,tg})});const j=await r.json();if(typeof j.left==='number')cr(j.left);
-if(!r.ok){hist.pop();w.className='msg e';w.textContent=j.error||'Error'}else{hist.push({role:'assistant',content:j.reply});w.innerHTML=fmt(j.reply)}}
+if(!r.ok){hist.pop();w.className='msg e';w.textContent=j.error||'Error'}else{hist.push({role:'assistant',content:j.reply});window.nxPulse&&nxPulse();w.innerHTML=fmt(j.reply)}}
 catch(e){hist.pop();w.className='msg e';w.textContent='Network error'}
 localStorage.setItem('nx_h',JSON.stringify(hist.slice(-30)));$('s').disabled=false;$('i').focus()}
 $('s').onclick=go;$('i').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go()}});
@@ -63,4 +69,32 @@ function ren(){$('ml').innerHTML=mcp.map((s,i)=>'<div class="item"><span>'+esc(s
 function addM(){const n=$('mn').value.trim()||'mcp',u=$('mu').value.trim();if(!/^https:\/\//.test(u))return alert('URL must start with https://');mcp.push({name:n,url:u});localStorage.setItem('nx_m',JSON.stringify(mcp));$('mn').value=$('mu').value='';ren()}
 function rm(i){mcp.splice(i,1);localStorage.setItem('nx_m',JSON.stringify(mcp));ren()}
 async function saveT(){const token=$('tt').value.trim(),chat=$('tc').value.trim();if(!token||!chat)return;$('ts').textContent='Testing…';const r=await fetch('/api/telegram-test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,chat})});const j=await r.json();if(j.result&&j.result.startsWith('Sent')){tg={token,chat};localStorage.setItem('nx_t',JSON.stringify(tg));$('tt').value=$('tc').value='';$('ts').textContent='Telegram connected ✓'}else $('ts').textContent=j.result||j.error||'Failed'}
+</script>
+<script>
+if(window.THREE){
+var cur=new THREE.Color("#2bb6ff"),tgt=cur.clone(),pulse=0;window.nxPulse=function(){pulse=1};
+var cv=document.getElementById('stage'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,mx=0,my=0,sp=0;
+if(window.THREE){
+var R=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true}),S=new THREE.Scene(),C=new THREE.PerspectiveCamera(50,1,.1,100),G=new THREE.Group();C.position.z=7;S.add(G);
+var lm=new THREE.LineBasicMaterial({color:0x2bb6ff,transparent:true,opacity:.9}),km=new THREE.LineBasicMaterial({color:0x2bb6ff,transparent:true,opacity:0}),mats=[lm,km];
+G.add(new THREE.Mesh(new THREE.IcosahedronGeometry(1.15,0),new THREE.MeshBasicMaterial({color:0})));
+G.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(1.2,1)),lm));
+var knot=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.TorusKnotGeometry(1.6,.35,120,12)),km);G.add(knot);
+var rings=[];[[1.9,.012,0],[2.4,.008,1],[2.9,.006,2]].forEach(function(r,i){var m=new THREE.MeshBasicMaterial({color:i==1?0xffffff:0x2bb6ff});if(i!=1)mats.push(m);var t=new THREE.Mesh(new THREE.TorusGeometry(r[0],r[1],8,160),m);t.rotation.set(r[2]*.9+.6,r[2]*.5,0);G.add(t);rings.push(t)});
+var n=1400,p=new Float32Array(n*3);for(var i=0;i<n;i++){var a=Math.random()*6.283,b=Math.acos(2*Math.random()-1),r=3.4+Math.random()*4;p[i*3]=r*Math.sin(b)*Math.cos(a);p[i*3+1]=r*Math.sin(b)*Math.sin(a);p[i*3+2]=r*Math.cos(b)}
+var g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));var pts=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.03,transparent:true,opacity:.8}));S.add(pts);
+var c2=document.createElement('canvas');c2.width=c2.height=128;var x=c2.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(255,255,255,.9)');gr.addColorStop(.3,'rgba(255,255,255,.22)');gr.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
+var gm=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c2),blending:THREE.AdditiveBlending,depthWrite:false,color:0x2bb6ff});mats.push(gm);var sg=new THREE.Sprite(gm);sg.scale.set(8,8,1);G.add(sg);
+function fit(){var w=innerWidth,h=innerHeight;R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}fit();addEventListener('resize',fit);
+addEventListener('scroll',function(){var m=document.documentElement.scrollHeight-innerHeight;sp=m>0?scrollY/m:0},{passive:true});
+var t=0,cs=0;
+function loop(){t+=reduce?0:.008;cs+=(sp-cs)*.06;cur.lerp(tgt,.08);mats.forEach(function(m){m.color.copy(cur)});
+var wide=innerWidth>860;
+G.rotation.y+=(mx*1.1+t+cs*8-G.rotation.y)*.05;G.rotation.x+=(my*.7+cs*2-G.rotation.x)*.05;
+var k2=Math.min(1,Math.max(0,(cs-.12)*5));km.opacity=k2*.9;knot.rotation.x=t*2;G.scale.setScalar((wide?1:.7)*(1+pulse*.35)+cs*.5);pulse*=.92;C.position.z=7-cs*2.5;
+rings.forEach(function(m,i){m.rotation.z=t*(i+1)*(i%2?-1:1)});pts.rotation.y=t*.3+cs*2;gm.opacity=.8+Math.sin(t*6)*.1;R.render(S,C);if(!reduce)requestAnimationFrame(loop)}
+loop();
+}
+addEventListener('pointermove',function(e){mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+}
 </script></body></html>

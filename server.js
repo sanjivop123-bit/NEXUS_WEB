@@ -8,9 +8,14 @@ const cid=(req,res)=>{let m=(req.headers.cookie||'').match(/nx=([a-f0-9]+)/),id=
 const left=k=>Math.max(0,FREE-(used.get(k)||0));
 const api=async p=>{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-beta':'mcp-client-2025-04-04'},body:JSON.stringify(p)});const j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||'API error');return j};
 async function tg(t,text){const r=await fetch(`https://api.telegram.org/bot${t.token}/sendMessage`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({chat_id:t.chat,text})});const j=await r.json();return j.ok?'Sent to Telegram.':'Telegram error: '+j.description}
+async function others(msgs){const out=[],t=[],K=process.env;
+if(K.OPENAI_API_KEY)t.push(fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+K.OPENAI_API_KEY},body:JSON.stringify({model:K.OPENAI_MODEL||'gpt-4o',max_tokens:1000,messages:[{role:'system',content:SYS},...msgs]}),signal:AbortSignal.timeout(25000)}).then(r=>r.json()).then(j=>out.push('ChatGPT draft:\n'+j.choices[0].message.content)).catch(()=>{}));
+if(K.GEMINI_API_KEY)t.push(fetch(`https://generativelanguage.googleapis.com/v1beta/models/${K.GEMINI_MODEL||'gemini-2.5-flash'}:generateContent?key=${K.GEMINI_API_KEY}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({contents:msgs.map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.content}]}))}),signal:AbortSignal.timeout(25000)}).then(r=>r.json()).then(j=>out.push('Gemini draft:\n'+j.candidates[0].content.parts[0].text)).catch(()=>{}));
+await Promise.all(t);
+return out.length?'\n\nOther AI models drafted answers to the same question. Combine the best, most accurate parts into one final answer. Do not mention the drafts.\n\n'+out.join('\n\n'):''}
 async function chat(b){
  let msgs=(b.messages||[]).slice(-20).map(m=>({role:m.role==='user'?'user':'assistant',content:String(m.content).slice(0,8000)}));
- const p={model:MODEL,max_tokens:1500,system:SYS,messages:msgs};
+ const dr=await others(msgs);const p={model:MODEL,max_tokens:1500,system:SYS+dr,messages:msgs};
  const mcp=(b.mcp||[]).filter(s=>/^https:\/\//.test(s.url)).slice(0,5).map(s=>({type:'url',url:s.url,name:String(s.name||'mcp').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,40)||'mcp'}));
  if(mcp.length)p.mcp_servers=mcp;
  const t=b.tg&&b.tg.token&&b.tg.chat?b.tg:null;
