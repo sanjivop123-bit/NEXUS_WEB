@@ -37,11 +37,47 @@ button.b{background:var(--g);color:#001226;border:0;border-radius:10px;padding:8
 button.x{background:none;border:1px solid var(--b);color:var(--m);border-radius:10px;padding:8px 14px;cursor:pointer;margin-left:6px}
 .item{display:flex;justify-content:space-between;font-size:13px;color:var(--m);padding:4px 0}
 .item a{color:#ff8a8a;cursor:pointer}
+header{padding:10px 12px;gap:8px;flex-wrap:nowrap}
+.hl,.hr{display:flex;align-items:center;gap:8px}
+.pill{white-space:nowrap;font:inherit;font-size:12.5px;padding:6px 12px}
+.ib{width:36px;height:36px;display:grid;place-items:center;padding:0;font-size:17px}
+#sb{position:fixed;top:0;bottom:0;left:0;width:290px;max-width:86vw;background:#0b0e14;border-right:1px solid var(--b);transform:translateX(-102%);transition:transform .25s;z-index:20;display:flex;flex-direction:column;padding:14px}
+#sb.on{transform:none}
+#bd{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:.25s;z-index:19}
+#bd.on{opacity:1;pointer-events:auto}
+#cl{flex:1;overflow:auto;margin-top:12px}
+.ci{display:flex;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:10px;color:var(--m);cursor:pointer;font-size:14px}
+.ci span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci:hover,.ci.on{background:var(--p);color:var(--t)}
+.ci a{color:#ff8a8a;padding:0 4px}
+.att{background:none;border:0;color:var(--m);font-size:20px;width:34px;height:38px;cursor:pointer;padding:0}
+.fl{max-width:720px;margin:0 auto 8px;display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--p);border:1px solid var(--b);border-radius:99px;padding:4px 10px;font-size:12px;color:var(--m)}
+.chip a{color:#ff8a8a;margin-left:4px;cursor:pointer}
+.fc{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;font-size:12px;color:var(--m)}
+code{background:#0a0d13;border:1px solid var(--b);border-radius:6px;padding:1px 5px;font-size:.92em}
+.cur{display:inline-block;width:7px;height:1em;background:var(--g);margin-left:2px;vertical-align:-2px;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.ld{display:flex;align-items:center;gap:14px;color:var(--m);font-size:14px;padding:2px 0}
+.sc{width:28px;height:28px;perspective:220px;margin:4px 6px}
+.cube{position:relative;width:100%;height:100%;transform-style:preserve-3d;animation:cr 2.2s linear infinite}
+.cube i{position:absolute;inset:0;border:1.5px solid #2bb6ff;background:rgba(43,182,255,.1);box-shadow:0 0 10px rgba(43,182,255,.55)}
+.cube i:nth-child(1){transform:translateZ(14px)}
+.cube i:nth-child(2){transform:rotateY(180deg) translateZ(14px)}
+.cube i:nth-child(3){transform:rotateY(90deg) translateZ(14px)}
+.cube i:nth-child(4){transform:rotateY(-90deg) translateZ(14px)}
+.cube i:nth-child(5){transform:rotateX(90deg) translateZ(14px)}
+.cube i:nth-child(6){transform:rotateX(-90deg) translateZ(14px)}
+@keyframes cr{to{transform:rotateX(360deg) rotateY(360deg)}}
+.sh{background:linear-gradient(90deg,#8b94a7 0,#fff 50%,#8b94a7 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shm 1.6s linear infinite}
+@keyframes shm{to{background-position:-200% 0}}
 </style></head><body>
 <canvas id="stage" aria-hidden="true"></canvas>
-<header><span class="logo">NEXUS</span><span><span class="pill" id="cr">…</span> <span class="pill" onclick="md(1)">Connectors</span></span></header>
+<header><span class="hl"><button class="pill ib" onclick="sb(1)" aria-label="Chats">&#9776;</button><span class="logo">NEXUS</span></span><span class="hr"><span class="pill" id="cr" title="Usage credits">&#9889; …</span><span class="pill" onclick="md(1)">Connectors</span></span></header>
+<div id="bd" onclick="sb(0)"></div>
+<aside id="sb"><button class="b" style="margin:0;width:100%" onclick="nc()">+ New chat</button><div id="cl"></div><div class="note" style="margin:8px 0 0">Chats are saved on this device</div></aside>
 <main id="m"><div class="wrap" id="c"><div class="hero" id="h"><h1>How can I help you today?</h1><p>Chat, write code, and use your connected apps.</p></div></div></main>
-<footer><div class="box"><textarea id="i" rows="1" placeholder="Message Nexus"></textarea><button class="send" id="s" title="Send">↑</button></div><div class="note">Nexus can make mistakes. Check important info.</div></footer>
+<footer><div class="fl" id="fl"></div><div class="box"><button class="att" onclick="document.getElementById('f').click()" title="Attach files">&#128206;</button><input type="file" id="f" multiple hidden accept="image/*,.pdf,.txt,.md,.csv,.json,.js,.ts,.jsx,.tsx,.py,.html,.css,.xml,.yml,.yaml,.log,.sql,.java,.c,.cpp,.go,.rs,.sh"><textarea id="i" rows="1" placeholder="Message Nexus"></textarea><button class="send" id="s" title="Send">↑</button></div><div class="note">Nexus can make mistakes. Check important info.</div></footer>
 <div class="modal" id="md"><div class="card"><h3>Connectors</h3><small>Connect your apps so Nexus can act for you.</small>
 <h4>MCP servers (Instagram, Google, Gmail, Drive…)</h4><small>Paste any remote MCP URL (for example from Composio) to connect that app.</small>
 <input id="mn" placeholder="Name (e.g. instagram)"><input id="mu" placeholder="https://…/mcp"><button class="b" onclick="addM()">Add MCP</button><div id="ml"></div>
@@ -49,30 +85,88 @@ button.x{background:none;border:1px solid var(--b);color:var(--m);border-radius:
 <div style="margin-top:16px"><button class="x" style="margin:0" onclick="md(0)">Close</button></div></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const $=id=>document.getElementById(id),L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}};
-let hist=L('nx_h',[]),mcp=L('nx_m',[]),tg=L('nx_t',null);
-const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const fmt=s=>esc(s).replace(/```(?:\w+)?\n?([\s\S]*?)```/g,'<pre>$1</pre>');
-function add(role,text,err){$('h')&&$('h').remove();const d=document.createElement('div');d.className='msg '+(role==='user'?'u':err?'e':'a');d.innerHTML=fmt(text);$('c').appendChild(d);$('m').scrollTop=1e9;return d}
-function cr(n){$('cr').textContent=n+' free messages left'}
-fetch('/api/credits').then(r=>r.json()).then(j=>cr(j.left)).catch(()=>cr('?'));
-hist.forEach(m=>add(m.role,m.content));
-async function go(){const t=$('i').value.trim();if(!t)return;$('i').value='';$('s').disabled=true;hist.push({role:'user',content:t});window.nxPulse&&nxPulse();add('user',t);const w=add('a','…');
-try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist,mcp,tg})});const j=await r.json();if(typeof j.left==='number')cr(j.left);
-if(!r.ok){hist.pop();w.className='msg e';w.textContent=j.error||'Error'}else{hist.push({role:'assistant',content:j.reply});window.nxPulse&&nxPulse();w.innerHTML=fmt(j.reply)}}
-catch(e){hist.pop();w.className='msg e';w.textContent='Network error'}
-localStorage.setItem('nx_h',JSON.stringify(hist.slice(-30)));$('s').disabled=false;$('i').focus()}
-$('s').onclick=go;$('i').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go()}});
+(function(){
+const $=id=>document.getElementById(id);
+const L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+const W=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}};
+const uid=()=>Math.random().toString(36).slice(2,10);
+let chats=L('nx_chats',[]),curId=L('nx_cur',null),mcp=L('nx_m',[]),tg=L('nx_t',null),pend=[],busy=false,total=0;
+const HERO='<div class="hero" id="h"><h1>How can I help you today?</h1><p>Chat, write code, attach files, and use your connected apps.</p></div>';
+const LOADER='<div class="ld"><div class="sc"><div class="cube"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><span class="sh">Nexus is thinking…</span></div>';
+if(!chats.length){const old=L('nx_h',[]);if(old.length)chats.push({id:uid(),title:String(old[0].content||'Chat').slice(0,40),ts:Date.now(),msgs:old.map(m=>({role:m.role,content:m.content,show:m.content}))})}
+const cur=()=>chats.find(c=>c.id===curId);
+const mk=()=>{const c={id:uid(),title:'New chat',ts:Date.now(),msgs:[]};chats.push(c);curId=c.id;return c};
+if(!cur()){const last=chats.slice().sort((a,b)=>b.ts-a.ts)[0];if(last)curId=last.id;else mk()}
+function save(){chats=chats.slice(-60);let n=0;while(!W('nx_chats',chats)&&n++<30){const i=chats.findIndex(c=>c.id!==curId);if(i<0)break;chats.splice(i,1)}W('nx_cur',curId)}
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fmt=s=>esc(s).replace(/```(?:\w+)?\n?([\s\S]*?)(```|$)/g,'<pre>$1</pre>').replace(/`([^`\n]+)`/g,'<code>$1</code>').replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>');
+function msgEl(m){const d=document.createElement('div');d.className='msg '+(m.role==='user'?'u':'a');
+ if(m.role==='user')d.innerHTML=esc(m.show||m.content)+(m.names&&m.names.length?'<div class="fc">'+m.names.map(n=>'<span>&#128206; '+esc(n)+'</span>').join('')+'</div>':'');
+ else d.innerHTML=fmt(m.content);return d}
+function side(){const l=chats.filter(c=>c.msgs.length||c.id===curId).sort((a,b)=>b.ts-a.ts);
+ $('cl').innerHTML=l.map(c=>'<div class="ci'+(c.id===curId?' on':'')+'" data-id="'+c.id+'"><span>'+esc(c.title)+'</span><a data-del="'+c.id+'">&times;</a></div>').join('')}
+$('cl').addEventListener('click',e=>{const d=e.target.getAttribute('data-del');if(d){if(busy)return;chats=chats.filter(c=>c.id!==d);if(curId===d){const l=chats.slice().sort((a,b)=>b.ts-a.ts)[0];if(l)curId=l.id;else mk()}save();draw();return}
+ const it=e.target.closest('.ci');if(it&&!busy){curId=it.getAttribute('data-id');save();draw();window.sb(0)}});
+function draw(){const c=$('c'),ch=cur();c.innerHTML='';if(!ch.msgs.length)c.innerHTML=HERO;else ch.msgs.forEach(m=>c.appendChild(msgEl(m)));$('m').scrollTop=1e9;side()}
+window.sb=o=>{$('sb').classList.toggle('on',!!o);$('bd').classList.toggle('on',!!o)};
+window.nc=()=>{if(busy)return;if(cur().msgs.length)mk();save();draw();window.sb(0)};
+function crd(n,t){if(typeof t==='number')total=t;$('cr').textContent='\u26A1 '+n+' credits';$('cr').title='Usage credits left'+(total?' of '+total:'')}
+/* files */
+const isText=f=>/^text\//.test(f.type)||/\.(txt|md|csv|json|js|ts|jsx|tsx|py|html|css|xml|yml|yaml|log|sql|java|c|cpp|go|rs|sh)$/i.test(f.name);
+const rdf=(f,m)=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;m==='url'?r.readAsDataURL(f):r.readAsText(f)});
+function chips(){$('fl').innerHTML=pend.map((f,i)=>'<span class="chip">&#128206; '+esc(f.name)+' <a data-i="'+i+'">&times;</a></span>').join('')}
+$('fl').addEventListener('click',e=>{const i=e.target.getAttribute('data-i');if(i!==null){pend.splice(+i,1);chips()}});
+$('f').addEventListener('change',async e=>{for(const f of e.target.files){if(pend.length>=4){alert('Max 4 files per message');break}
+ if(f.size>8388608){alert(f.name+' is too large (max 8 MB)');continue}
+ try{if(/^image\//.test(f.type)||f.type==='application/pdf'){const d=await rdf(f,'url');pend.push({name:f.name,mime:f.type,data:d.split(',')[1]})}
+  else if(isText(f)){const t=await rdf(f,'text');pend.push({name:f.name,text:t.slice(0,60000)})}
+  else alert(f.name+': this file type is not supported')}catch(x){alert('Could not read '+f.name)}}
+ e.target.value='';chips()});
+/* chat */
+async function go(){
+ if(busy)return;const ta=$('i'),t=ta.value.trim();if(!t&&!pend.length)return;
+ const ch=cur(),bin=pend.filter(f=>f.data),txt=pend.filter(f=>f.text!=null);
+ let content=t||'Please look at the attached file(s).';txt.forEach(f=>{content+='\n\n[File: '+f.name+']\n'+f.text});
+ const um={role:'user',content:content,show:t,names:pend.map(f=>f.name)};
+ ch.msgs.push(um);if(ch.title==='New chat')ch.title=(t||um.names[0]||'Chat').slice(0,40);ch.ts=Date.now();save();
+ ta.value='';ta.style.height='auto';pend=[];chips();busy=true;$('s').disabled=true;
+ window.nxBusy&&window.nxBusy(1);window.nxPulse&&window.nxPulse();
+ $('h')&&$('h').remove();$('c').appendChild(msgEl(um));
+ const el=document.createElement('div');el.className='msg a';el.innerHTML=LOADER;$('c').appendChild(el);$('m').scrollTop=1e9;
+ const payload=ch.msgs.slice(-20).map(m=>({role:m.role,content:m.content,files:m===um?bin.map(f=>({name:f.name,mime:f.mime,data:f.data})):undefined}));
+ let q='',shown='',full='',tm=null,err=null;
+ const pump=()=>{if(!q)return;const n=Math.max(2,Math.ceil(q.length/8));shown+=q.slice(0,n);q=q.slice(n);el.innerHTML=fmt(shown)+'<span class="cur"></span>';const m=$('m');if(m.scrollHeight-m.scrollTop-m.clientHeight<180)m.scrollTop=1e9};
+ try{
+  const r=await fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:payload,mcp:mcp,tg:tg})});
+  if(!r.ok){const j=await r.json().catch(()=>({}));if(typeof j.left==='number')crd(j.left,j.total);throw new Error(j.error||('Error '+r.status))}
+  tm=setInterval(pump,28);
+  const rd=r.body.getReader(),dec=new TextDecoder();let buf='';
+  for(;;){const x=await rd.read();if(x.done)break;buf+=dec.decode(x.value,{stream:true});let i;
+   while((i=buf.indexOf('\n\n'))>=0){const ev=buf.slice(0,i);buf=buf.slice(i+2);if(ev.indexOf('data:')!==0)continue;
+    let j;try{j=JSON.parse(ev.slice(5))}catch(e){continue}
+    if(j.t){q+=j.t;full+=j.t}if(j.error)err=j.error;if(typeof j.left==='number')crd(j.left,j.total)}}
+  if(err&&!full)throw new Error(err);
+  await new Promise(ok=>{const w=()=>q?setTimeout(w,30):ok();w()});
+  clearInterval(tm);el.innerHTML=fmt(full||'(no reply)');
+  ch.msgs.push({role:'assistant',content:full||'(no reply)'});save();window.nxPulse&&window.nxPulse();
+ }catch(e){clearInterval(tm);ch.msgs.pop();save();el.className='msg e';el.textContent=(e.message==='Failed to fetch'||e.message==='Load failed')?'Network error. Please try again.':e.message;if(!full)ta.value=t}
+ busy=false;$('s').disabled=false;window.nxBusy&&window.nxBusy(0);side();ta.focus()}
+$('s').onclick=go;
+$('i').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go()}});
 $('i').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=e.target.scrollHeight+'px'});
-function md(o){$('md').classList.toggle('on',!!o);if(o)ren()}
+/* connectors */
+window.md=o=>{$('md').classList.toggle('on',!!o);if(o)ren()};
 function ren(){$('ml').innerHTML=mcp.map((s,i)=>'<div class="item"><span>'+esc(s.name)+'</span><a onclick="rm('+i+')">remove</a></div>').join('');$('ts').textContent=tg?'Telegram connected':''}
-function addM(){const n=$('mn').value.trim()||'mcp',u=$('mu').value.trim();if(!/^https:\/\//.test(u))return alert('URL must start with https://');mcp.push({name:n,url:u});localStorage.setItem('nx_m',JSON.stringify(mcp));$('mn').value=$('mu').value='';ren()}
-function rm(i){mcp.splice(i,1);localStorage.setItem('nx_m',JSON.stringify(mcp));ren()}
-async function saveT(){const token=$('tt').value.trim(),chat=$('tc').value.trim();if(!token||!chat)return;$('ts').textContent='Testing…';const r=await fetch('/api/telegram-test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,chat})});const j=await r.json();if(j.result&&j.result.startsWith('Sent')){tg={token,chat};localStorage.setItem('nx_t',JSON.stringify(tg));$('tt').value=$('tc').value='';$('ts').textContent='Telegram connected ✓'}else $('ts').textContent=j.result||j.error||'Failed'}
+window.addM=()=>{const n=$('mn').value.trim()||'mcp',u=$('mu').value.trim();if(!/^https:\/\//.test(u))return alert('URL must start with https://');mcp.push({name:n,url:u});W('nx_m',mcp);$('mn').value=$('mu').value='';ren()};
+window.rm=i=>{mcp.splice(i,1);W('nx_m',mcp);ren()};
+window.saveT=async()=>{const token=$('tt').value.trim(),chat=$('tc').value.trim();if(!token||!chat)return;$('ts').textContent='Testing…';const r=await fetch('/api/telegram-test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:token,chat:chat})});const j=await r.json();if(j.result&&j.result.indexOf('Sent')===0){tg={token:token,chat:chat};W('nx_t',tg);$('tt').value=$('tc').value='';$('ts').textContent='Telegram connected ✓'}else $('ts').textContent=j.result||j.error||'Failed'};
+draw();save();
+fetch('/api/credits').then(r=>r.json()).then(j=>crd(j.left,j.total)).catch(()=>{$('cr').textContent='\u26A1 ?'});
+})();
 </script>
 <script>
 if(window.THREE){
-var cur=new THREE.Color("#2bb6ff"),tgt=cur.clone(),pulse=0;window.nxPulse=function(){pulse=1};
+var cur=new THREE.Color("#2bb6ff"),tgt=cur.clone(),pulse=0;window.nxPulse=function(){pulse=1};var busy=0,bs=0;window.nxBusy=function(b){busy=b?1:0};
 var cv=document.getElementById('stage'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,mx=0,my=0,sp=0;
 if(window.THREE){
 var R=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true}),S=new THREE.Scene(),C=new THREE.PerspectiveCamera(50,1,.1,100),G=new THREE.Group();C.position.z=7;S.add(G);
@@ -88,10 +182,10 @@ var gm=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c2),blending:THREE.
 function fit(){var w=innerWidth,h=innerHeight;R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}fit();addEventListener('resize',fit);
 addEventListener('scroll',function(){var m=document.documentElement.scrollHeight-innerHeight;sp=m>0?scrollY/m:0},{passive:true});
 var t=0,cs=0;
-function loop(){t+=reduce?0:.008;cs+=(sp-cs)*.06;cur.lerp(tgt,.08);mats.forEach(function(m){m.color.copy(cur)});
+function loop(){bs+=(busy-bs)*.06;t+=reduce?0:.008*(1+bs*6);cs+=(sp-cs)*.06;cur.lerp(tgt,.08);mats.forEach(function(m){m.color.copy(cur)});
 var wide=innerWidth>860;
 G.rotation.y+=(mx*1.1+t+cs*8-G.rotation.y)*.05;G.rotation.x+=(my*.7+cs*2-G.rotation.x)*.05;
-var k2=Math.min(1,Math.max(0,(cs-.12)*5));km.opacity=k2*.9;knot.rotation.x=t*2;G.scale.setScalar((wide?1:.7)*(1+pulse*.35)+cs*.5);pulse*=.92;C.position.z=7-cs*2.5;
+var k2=Math.min(1,Math.max(0,(cs-.12)*5));km.opacity=k2*.9;knot.rotation.x=t*2;G.scale.setScalar((wide?1:.7)*(1+pulse*.35+bs*.08*Math.sin(t*30))+cs*.5);pulse*=.92;C.position.z=7-cs*2.5;
 rings.forEach(function(m,i){m.rotation.z=t*(i+1)*(i%2?-1:1)});pts.rotation.y=t*.3+cs*2;gm.opacity=.8+Math.sin(t*6)*.1;R.render(S,C);if(!reduce)requestAnimationFrame(loop)}
 loop();
 }
